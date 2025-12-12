@@ -23,6 +23,8 @@ Transform a single RGB image into a detailed 3D voxel reconstruction:
   </table>
 </div>
 
+> 📸 **See more examples:** Check out the [examples gallery](examples/README.md) for additional 3D reconstructions from various scenes.
+
 ## Purpose
 
 This repository demonstrates how to:
