@@ -1,0 +1,10 @@
+pyoctomap>=1.0.0
+transformers
+torch
+opencv-python
+open3d
+numpy
+requests
+tqdm
+pillow
+matplotlib
