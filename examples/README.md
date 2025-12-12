@@ -20,6 +20,22 @@ This folder contains example 3D reconstructions generated from single RGB images
   </table>
 </div>
 
+### Room 1
+<div align="center">
+  <table>
+    <tr>
+      <td align="center">
+        <b>Input Image</b><br/>
+        <img src="../data/images/room1.jpg" width="400" alt="Room 1 input image"/>
+      </td>
+      <td align="center">
+        <b>3D Voxel Reconstruction</b><br/>
+        <img src="room1.gif" width="400" alt="Room 1 3D reconstruction animation"/>
+      </td>
+    </tr>
+  </table>
+</div>
+
 ### Room 2
 <div align="center">
   <table>
@@ -31,6 +47,22 @@ This folder contains example 3D reconstructions generated from single RGB images
       <td align="center">
         <b>3D Voxel Reconstruction</b><br/>
         <img src="room2.gif" width="400" alt="Room 2 3D reconstruction animation"/>
+      </td>
+    </tr>
+  </table>
+</div>
+
+### Room 3
+<div align="center">
+  <table>
+    <tr>
+      <td align="center">
+        <b>Input Image</b><br/>
+        <img src="../data/images/room3.jpg" width="400" alt="Room 3 input image"/>
+      </td>
+      <td align="center">
+        <b>3D Voxel Reconstruction</b><br/>
+        <img src="room3.gif" width="400" alt="Room 3 3D reconstruction animation"/>
       </td>
     </tr>
   </table>
@@ -52,14 +84,41 @@ This folder contains example 3D reconstructions generated from single RGB images
   </table>
 </div>
 
+### Windows
+<div align="center">
+  <table>
+    <tr>
+      <td align="center">
+        <b>Input Image</b><br/>
+        <img src="../data/images/windows.jpg" width="400" alt="Windows input image"/>
+      </td>
+      <td align="center">
+        <b>3D Voxel Reconstruction</b><br/>
+        <img src="windows.gif" width="400" alt="Windows 3D reconstruction animation"/>
+      </td>
+    </tr>
+  </table>
+</div>
+
+### Bedroom
+<div align="center">
+  <table>
+    <tr>
+      <td align="center">
+        <b>Input Image</b><br/>
+        <img src="../data/images/bedroom.jpg" width="400" alt="Bedroom input image"/>
+      </td>
+      <td align="center">
+        <b>3D Voxel Reconstruction</b><br/>
+        <img src="bedroom.gif" width="400" alt="Bedroom 3D reconstruction animation"/>
+      </td>
+    </tr>
+  </table>
+</div>
+
 ## Additional Sample Images
 
-The following images are available in `data/images/` for testing:
-
-- **bedroom.jpg** - Bedroom scene
-- **room1.jpg** - Indoor room scene
-- **room3.jpg** - Another indoor room scene
-- **windows.jpg** - Window scene
+All sample images now have corresponding 3D reconstructions above.
 
 To generate your own 3D reconstructions and GIFs, use:
 
@@ -77,4 +136,3 @@ python demo_pyoctomap.py --input data/images/<image_name>.jpg --visualize --gif 
 3. The GIF will be saved in the `examples/` folder
 
 For best results, use high-resolution images with good lighting and clear depth cues.
-

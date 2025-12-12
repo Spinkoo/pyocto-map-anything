@@ -100,27 +100,15 @@ This installs:
 
 To use Depth Anything v3 models, you need to install the `depth_anything_3` package separately:
 
-#### Option 1: Quick Install (Recommended)
-
-```bash
-# Install PyTorch dependencies
-pip install xformers torch>=2 torchvision
-
-# Install depth-anything-v3
-pip install depth-anything-v3
-```
-
-#### Option 2: From Source
-
-For the latest features or if you encounter issues:
+#### Quick Install
 
 ```bash
 # Install PyTorch dependencies
 pip install xformers torch>=2 torchvision
 
 # Clone the repository
-git clone https://github.com/LiheYoung/Depth-Anything-V3.git
-cd Depth-Anything-V3
+git clone https://github.com/ByteDance-Seed/Depth-Anything-3.git
+cd Depth-Anything-3
 
 # Install the package
 pip install -e .
@@ -128,7 +116,7 @@ pip install -e .
 
 **Note:** CUDA is recommended for faster inference. The models will work on CPU but will be significantly slower.
 
-**Reference:** For detailed installation instructions and troubleshooting, see the [Depth Anything V3 repository](https://github.com/LiheYoung/Depth-Anything-V3).
+**Reference:** For detailed installation instructions and troubleshooting, see the [Depth Anything 3 repository](https://github.com/ByteDance-Seed/Depth-Anything-3).
 
 ## Usage
 
@@ -219,33 +207,28 @@ python demo_pyoctomap.py --input data/images/white_house.jpg --visualize --model
 - **0.01m (1cm)**: Good balance for most indoor/outdoor scenes
 - **0.05m (5cm)**: General purpose, faster processing, less memory
 
-## Project Structure
-
-```
-pyocto-map-anything/
-│
-├── demo_pyoctomap.py      # Main demo script
-├── depth_processor.py     # Depth model loading and inference
-├── model_handler.py       # Model-specific handling (DA3 vs HF)
-├── data_handler.py        # 3D point cloud projection
-├── visualizer.py          # Open3D visualization
-├── requirements.txt       # Python dependencies
-└── data/
-    └── images/           # Sample images for testing
-```
-
 ## About pyoctomap
 
 This demo is built on **[pyoctomap](https://github.com/Spinkoo/pyoctomap)**, a Python binding library for OctoMap that provides:
 
-- Direct access to OctoMap's `ColorOcTree` from Python
+- Direct access to various categories of octrees from OctoMap in Python
 - Efficient voxel-based 3D mapping
-- Color integration for visual mapping
+- Color integration for visual mapping (ColorOcTree)
 - Binary file I/O for map persistence
 
 Visit the [pyoctomap repository](https://github.com/Spinkoo/pyoctomap) to learn more about the library and explore additional features.
 
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+**Dependencies:**
+- This project uses [Depth Anything 3](https://github.com/ByteDance-Seed/Depth-Anything-3) (Apache 2.0 License for codebase)
+  - **Note:** Some model weights (e.g., DA3NESTED-GIANT-LARGE, DA3-GIANT, DA3-LARGE) are licensed under CC BY-NC 4.0 (non-commercial use only)
+  - Models like DA3-BASE, DA3-SMALL, DA3METRIC-LARGE, and DA3MONO-LARGE are under Apache 2.0
+- This project uses [pyoctomap](https://github.com/Spinkoo/pyoctomap) (check their repository for license details)
+
 ## Notes
 
-- For issues or questions about Depth Anything v3, refer to the [official repository](https://github.com/LiheYoung/Depth-Anything-V3)
+- For issues or questions about Depth Anything 3, refer to the [official repository](https://github.com/ByteDance-Seed/Depth-Anything-3)
 - For pyoctomap-related questions, visit the [pyoctomap repository](https://github.com/Spinkoo/pyoctomap)
