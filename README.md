@@ -163,7 +163,7 @@ python demo_pyoctomap.py --input data/images/room3.jpg --model "depth-anything/D
 For detailed reconstructions, use smaller resolution values:
 
 ```bash
-python demo_pyoctomap.py --input data/images/white.jpg --visualize --model "depth-anything/DA3-LARGE" --resolution 0.005
+python demo_pyoctomap.py --input data/images/white_house.jpg --visualize --model "depth-anything/DA3-LARGE" --resolution 0.005
 ```
 
 ## Command Reference
