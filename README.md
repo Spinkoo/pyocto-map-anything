@@ -21,7 +21,6 @@ Transform a single RGB image into a detailed 3D voxel reconstruction:
       </td>
     </tr>
   </table>
-  <p><em>Single RGB image transformed into a vibrant 3D voxel scene using AI depth estimation and OctoMap</em></p>
 </div>
 
 ## Purpose
