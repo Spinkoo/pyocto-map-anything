@@ -1,4 +1,4 @@
-pyoctomap>=1.0.0
+pyoctomap
 transformers
 torch
 opencv-python
