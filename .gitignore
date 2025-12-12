@@ -102,3 +102,7 @@ tmp/
 # Project-specific: utils directory should be tracked
 !utils/
 !utils/*.py
+
+# Project-specific: examples directory should be tracked
+!examples/
+!examples/*.gif
