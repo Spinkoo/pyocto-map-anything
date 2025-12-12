@@ -4,6 +4,26 @@ Bring your images to life in 3D: Instantly transform a single photo into a vibra
 
 This demo showcases **[pyoctomap](https://github.com/Spinkoo/pyoctomap)** - Python bindings for OctoMap that enable direct integration of AI depth predictions into C++ `ColorOcTree` structures, all from Python. The pipeline seamlessly combines state-of-the-art depth estimation models with OctoMap's efficient voxel-based 3D mapping.
 
+## Example
+
+Transform a single RGB image into a detailed 3D voxel reconstruction:
+
+<div align="center">
+  <table>
+    <tr>
+      <td align="center">
+        <b>Input Image</b><br/>
+        <img src="data/images/room2.jpg" width="400" alt="Input: White house image"/>
+      </td>
+      <td align="center">
+        <b>3D Voxel Reconstruction</b><br/>
+        <img src="examples/room2.gif" width="400" alt="Output: 3D voxel reconstruction animation"/>
+      </td>
+    </tr>
+  </table>
+  <p><em>Single RGB image transformed into a vibrant 3D voxel scene using AI depth estimation and OctoMap</em></p>
+</div>
+
 ## Purpose
 
 This repository demonstrates how to:
@@ -228,6 +248,5 @@ Visit the [pyoctomap repository](https://github.com/Spinkoo/pyoctomap) to learn 
 
 ## Notes
 
-- Illustrations and visual examples will be added in a future update
 - For issues or questions about Depth Anything v3, refer to the [official repository](https://github.com/LiheYoung/Depth-Anything-V3)
 - For pyoctomap-related questions, visit the [pyoctomap repository](https://github.com/Spinkoo/pyoctomap)

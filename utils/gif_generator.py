@@ -11,7 +11,7 @@ import time
 
 
 def create_rotating_gif(points, colors, output_path, resolution=0.05, num_frames=60, 
-                        rotation_axis='y', fps=10, width=1024, height=768):
+                        rotation_axis='y', fps=10, width=1024, height=768, zoom=0.9):
     """
     Create a rotating GIF animation of a 3D scene.
     
@@ -25,6 +25,7 @@ def create_rotating_gif(points, colors, output_path, resolution=0.05, num_frames
         fps: Frames per second for the GIF
         width: Image width in pixels
         height: Image height in pixels
+        zoom: Camera zoom level (default: 0.9, higher = more zoomed in, max ~1.0)
     """
     if len(points) == 0:
         print("No points to visualize")
@@ -64,7 +65,8 @@ def create_rotating_gif(points, colors, output_path, resolution=0.05, num_frames
         ctr.set_lookat(center)
         ctr.set_up([0, 1, 0])
         ctr.set_front([0, 0, -1])
-        ctr.set_zoom(0.7)
+        # Set zoom to reduce white space (higher value = more zoomed in)
+        ctr.set_zoom(zoom)
         
         # Force initial render with multiple passes
         # Don't use sleep here as it blocks - just render multiple times
@@ -101,6 +103,8 @@ def create_rotating_gif(points, colors, output_path, resolution=0.05, num_frames
             ctr.set_front(front)
             ctr.set_lookat(center)
             ctr.set_up([0, 1, 0])
+            # Maintain zoom level to reduce white space
+            ctr.set_zoom(zoom)
             
             # Update renderer multiple times to ensure proper rendering
             # More passes for invisible window to ensure proper rendering
