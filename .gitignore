@@ -80,6 +80,7 @@ output/*
 !data/.gitkeep
 !data/images/
 !data/images/*.jpg
+!data/images/*.png
 !output/.gitkeep
 
 # Project-specific: Open3D files
@@ -98,5 +99,6 @@ ScreenCapture*
 # Project-specific: Temporary folder
 tmp/
 
-# Project-specific: gif generator
-gif_generator.py
+# Project-specific: utils directory should be tracked
+!utils/
+!utils/*.py
