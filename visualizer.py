@@ -11,8 +11,8 @@ class Visualizer:
         self.vis.register_key_callback(ord("Q"), self._on_key_q)
 
         self.pcd = o3d.geometry.PointCloud()
-        self.vis.add_geometry(self.pcd)
         self.voxel_grid = None
+        self._geometry_added = False
         self._first_update = True
 
     def update(self, points, colors):
@@ -22,14 +22,39 @@ class Visualizer:
         self.pcd.points = o3d.utility.Vector3dVector(points)
         self.pcd.colors = o3d.utility.Vector3dVector(colors)
 
+        # Remove existing geometry
         if self.voxel_grid:
             self.vis.remove_geometry(self.voxel_grid, reset_bounding_box=False)
-
-        display_resolution = self.resolution * 1.5
-        self.voxel_grid = o3d.geometry.VoxelGrid.create_from_point_cloud(
-            self.pcd, voxel_size=display_resolution
-        )
-        self.vis.add_geometry(self.voxel_grid, reset_bounding_box=self._first_update)
+            self.voxel_grid = None
+        
+        if self._geometry_added and self.resolution >= 0.005:
+            # Remove point cloud if we were using it before and now switching to voxel grid
+            self.vis.remove_geometry(self.pcd, reset_bounding_box=False)
+            self._geometry_added = False
+        
+        # For very fine resolutions (< 0.005), use point cloud directly
+        # For coarser resolutions, create a voxel grid for better visualization
+        if self.resolution < 0.005:
+            # Use point cloud directly for very fine resolutions
+            if not self._geometry_added:
+                self.vis.add_geometry(self.pcd, reset_bounding_box=self._first_update)
+                self._geometry_added = True
+            else:
+                self.vis.update_geometry(self.pcd)
+        else:
+            # Create voxel grid for better visualization
+            if self.resolution < 0.01:
+                # Fine resolution: use actual resolution or very small multiplier
+                display_resolution = self.resolution * 1.1
+            else:
+                # Coarser resolution: use larger multiplier for better visualization
+                display_resolution = self.resolution * 1.5
+            
+            self.voxel_grid = o3d.geometry.VoxelGrid.create_from_point_cloud(
+                self.pcd, voxel_size=display_resolution
+            )
+            self.vis.add_geometry(self.voxel_grid, reset_bounding_box=self._first_update)
+        
         self._first_update = False
 
         self.vis.poll_events()

@@ -41,11 +41,35 @@ def create_rotating_gif(points, colors, output_path, resolution=0.05, num_frames
         pcd.points = o3d.utility.Vector3dVector(points)
         pcd.colors = o3d.utility.Vector3dVector(colors)
         
-        # Create voxel grid for better visualization
-        display_resolution = resolution * 1.5
-        voxel_grid = o3d.geometry.VoxelGrid.create_from_point_cloud(
-            pcd, voxel_size=display_resolution
-        )
+        # For very fine resolutions (< 0.005), use point cloud directly
+        # For coarser resolutions, create a voxel grid for better visualization
+        use_point_cloud = resolution < 0.005
+        
+        if use_point_cloud:
+            print(f"Using point cloud directly (resolution {resolution:.6f} is very fine)")
+            voxel_grid = None
+        else:
+            # Create voxel grid for better visualization
+            # For fine resolutions, use the actual resolution or a small multiplier
+            # For coarser resolutions, use a larger multiplier
+            if resolution < 0.01:
+                # Fine resolution: use actual resolution or very small multiplier
+                display_resolution = resolution * 1.1
+            else:
+                # Coarser resolution: use larger multiplier for better visualization
+                display_resolution = resolution * 1.5
+            
+            print(f"Using voxel grid with display resolution: {display_resolution:.6f} (OctoMap resolution: {resolution:.6f})")
+            
+            voxel_grid = o3d.geometry.VoxelGrid.create_from_point_cloud(
+                pcd, voxel_size=display_resolution
+            )
+            
+            # Check if voxel grid has any voxels
+            if len(voxel_grid.get_voxels()) == 0:
+                print("Warning: Voxel grid is empty, falling back to point cloud")
+                use_point_cloud = True
+                voxel_grid = None
         
         # Calculate center and bounds of the scene
         center = points.mean(axis=0)
@@ -56,7 +80,11 @@ def create_rotating_gif(points, colors, output_path, resolution=0.05, num_frames
         vis = o3d.visualization.Visualizer()
         vis.create_window(width=width, height=height, visible=False)
         
-        vis.add_geometry(voxel_grid)
+        # Add geometry based on whether we're using voxel grid or point cloud
+        if use_point_cloud:
+            vis.add_geometry(pcd)
+        else:
+            vis.add_geometry(voxel_grid)
         
         # Get view control
         ctr = vis.get_view_control()

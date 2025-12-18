@@ -36,5 +36,5 @@ class DataHandler:
             points = points - center
             points[:, 2] = -points[:, 2]  # Flip Z
             points[:, 2] += 1.0  # Shift forward
-
+        colors = colors / 255.0
         return points, colors

@@ -27,11 +27,8 @@ class OctomapHandler:
             origin = np.array([0., 0., 0.], dtype=np.float64)
         else:
             origin = np.array(origin, dtype=np.float64)
-        print(f"Inserting cloud with origin: {origin}")
-        self.tree.insertPointCloud(points_double, origin, lazy_eval=True)
-        for i, p in enumerate(points_double):
-            r, g, b = int(colors[i][0]), int(colors[i][1]), int(colors[i][2])
-            self.tree.integrateNodeColor(p, r, g, b)
+        self.tree.insertPointCloudWithColor(points_double, colors, origin, lazy_eval=True)
+
 
     def get_structure(self):
         # Extract occupied voxels and their colors
