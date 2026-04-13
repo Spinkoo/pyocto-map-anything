@@ -45,10 +45,10 @@ The pipeline supports two families of depth estimation models with seamless inte
 
 | Model | Accuracy | Speed | Intrinsics | Use Case |
 |-------|----------|-------|------------|----------|
-| `depth-anything/DA3NESTED-GIANT-LARGE` | Highest | Slowest | ✅ Automatic | Maximum accuracy needed |
-| `depth-anything/DA3NESTED-LARGE` | High | Medium | ✅ Automatic | Best balance (recommended) |
-| `depth-anything/DA3NESTED-BASE` | Good | Fast | ✅ Automatic | Faster inference |
-| `depth-anything/DA3NESTED-SMALL` | Moderate | Fastest | ✅ Automatic | Real-time applications |
+| `depth-anything/DA3NESTED-GIANT-LARGE-1.1` | Highest | Slowest | ✅ Automatic | Maximum accuracy needed |
+| `depth-anything/DA3-LARGE` | High | Medium | ✅ Automatic | Best balance (recommended) |
+| `depth-anything/DA3-BASE` | Good | Fast | ✅ Automatic | Faster inference |
+| `depth-anything/DA3-SMALL` | Moderate | Fastest | ✅ Automatic | Real-time applications |
 
 **Key Features:**
 - **Automatic camera intrinsics estimation** - No need to provide fx, fy, cx, cy
@@ -139,8 +139,8 @@ Depth Anything v3 models provide automatic camera intrinsics estimation:
 # Using DA3-LARGE model
 python demo_pyoctomap.py --input data/images/room1.jpg --visualize --model "depth-anything/DA3-LARGE" --resolution 0.005
 
-# Using DA3-GIANT-LARGE for highest accuracy
-python demo_pyoctomap.py --input data/images/room2.jpg --visualize --model "depth-anything/DA3NESTED-GIANT-LARGE" --resolution 0.005
+# Using DA3NESTED-GIANT-LARGE-1.1 for highest accuracy
+python demo_pyoctomap.py --input data/images/room2.jpg --visualize --model "depth-anything/DA3NESTED-GIANT-LARGE-1.1" --resolution 0.005
 ```
 
 When using DA3 models, you'll see output like:
@@ -182,7 +182,7 @@ python demo_pyoctomap.py --input data/images/white_house.jpg --visualize --model
 
 - `--input` (required): Path to input image file
 - `--model`: Depth estimation model name (default: `dpt-hybrid`)
-  - DA3 models: `depth-anything/DA3NESTED-GIANT-LARGE`, `depth-anything/DA3NESTED-LARGE`, `depth-anything/DA3NESTED-BASE`, `depth-anything/DA3NESTED-SMALL`
+  - DA3 models: `depth-anything/DA3NESTED-GIANT-LARGE-1.1`, `depth-anything/DA3-LARGE`, `depth-anything/DA3-BASE`, `depth-anything/DA3-SMALL`
   - HF models: `Intel/zoedepth-nyu-kitti`, `Intel/dpt-large`, `Intel/dpt-hybrid-midas` (shortcut: `dpt-hybrid`), `depth-anything/Depth-Anything-V2-Small-hf`, `Intel/dpt-beit-large-512`
 - `--resolution`: OctoMap voxel resolution in meters (default: `0.05`)
   - Smaller values = higher detail but more memory
@@ -227,7 +227,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 **Dependencies:**
 - This project uses [Depth Anything 3](https://github.com/ByteDance-Seed/Depth-Anything-3) (Apache 2.0 License for codebase)
-  - **Note:** Some model weights (e.g., DA3NESTED-GIANT-LARGE, DA3-GIANT, DA3-LARGE) are licensed under CC BY-NC 4.0 (non-commercial use only)
+  - **Note:** Some model weights (e.g., DA3NESTED-GIANT-LARGE-1.1, DA3-GIANT, DA3-LARGE) are licensed under CC BY-NC 4.0 (non-commercial use only)
   - Models like DA3-BASE, DA3-SMALL, DA3METRIC-LARGE, and DA3MONO-LARGE are under Apache 2.0
 - This project uses [pyoctomap](https://github.com/Spinkoo/pyoctomap) (check their repository for license details)
 
