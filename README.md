@@ -62,13 +62,14 @@ The pipeline supports two families of depth estimation models with seamless inte
 | `isl-org/ZoeDepth` | Excellent | Medium | ❌ FOV-based | High accuracy, general scenes |
 | `Intel/dpt-large` | Very High | Slow | ❌ FOV-based | Maximum accuracy (HF models) |
 | `Intel/dpt-hybrid-midas` (default) | Good | Medium | ❌ FOV-based | Balanced performance |
-| `LiheYoung/depth-anything-v2-small-hf` | Good | Fast | ❌ FOV-based | Fast general purpose |
+| `depth-anything/Depth-Anything-V2-Small-hf` | Good | Fast | ❌ FOV-based | Fast general purpose |
 | `Intel/dpt-beit-large-512` | Moderate | Fastest | ❌ FOV-based | Quick processing |
 
 **Key Features:**
 - **Easy installation** - Works with standard `transformers` library
 - **No special setup** required
 - **Wide model selection** from HuggingFace Hub
+- **Depth Anything V2 (Transformers)** uses checkpoints such as [`depth-anything/Depth-Anything-V2-Small-hf`](https://huggingface.co/depth-anything/Depth-Anything-V2-Small-hf) (and Base/Large `-hf` variants); see the [model documentation](https://huggingface.co/docs/transformers/main/en/model_doc/depth_anything_v2)
 
 ### Unified Integration
 
@@ -182,7 +183,7 @@ python demo_pyoctomap.py --input data/images/white_house.jpg --visualize --model
 - `--input` (required): Path to input image file
 - `--model`: Depth estimation model name (default: `dpt-hybrid`)
   - DA3 models: `depth-anything/DA3NESTED-GIANT-LARGE`, `depth-anything/DA3NESTED-LARGE`, `depth-anything/DA3NESTED-BASE`, `depth-anything/DA3NESTED-SMALL`
-  - HF models: `Intel/zoedepth-nyu-kitti`, `Intel/dpt-large`, `Intel/dpt-hybrid`, `LiheYoung/depth-anything-v2-small-hf`, `Intel/dpt-beit-large-512`
+  - HF models: `Intel/zoedepth-nyu-kitti`, `Intel/dpt-large`, `Intel/dpt-hybrid-midas` (shortcut: `dpt-hybrid`), `depth-anything/Depth-Anything-V2-Small-hf`, `Intel/dpt-beit-large-512`
 - `--resolution`: OctoMap voxel resolution in meters (default: `0.05`)
   - Smaller values = higher detail but more memory
   - Recommended: `0.005` for detailed scenes, `0.05` for general use

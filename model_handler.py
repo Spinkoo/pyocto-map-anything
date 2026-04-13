@@ -1,6 +1,15 @@
 import warnings
+import os
 from PIL import Image
 import numpy as np
+
+# Disable torch dynamo/inductor to prevent nvrtc JIT compilation errors
+# (e.g. "invalid value for --gpu-architecture")
+os.environ.setdefault("TORCHDYNAMO_DISABLE", "1")
+
+import torch
+if hasattr(torch, '_dynamo'):
+    torch._dynamo.config.suppress_errors = True
 
 # Suppress transformers warnings
 warnings.filterwarnings("ignore", message=".*were not initialized from the model checkpoint.*")
@@ -15,12 +24,12 @@ class DepthModel:
             except ImportError:
                 raise ImportError("depth_anything_3 package not found. Install it with: pip install depth-anything-v3")
 
-            import torch
             device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
             self.model = DepthAnything3.from_pretrained(model_name).to(device)
         else:
             from transformers import pipeline
-            self.pipe = pipeline(task="depth-estimation", model=model_name)
+            device_arg = 0 if torch.cuda.is_available() else -1
+            self.pipe = pipeline(task="depth-estimation", model=model_name, device=device_arg)
 
     def infer_batch(self, rgb_list):
         if self.is_da3:

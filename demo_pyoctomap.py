@@ -27,21 +27,13 @@ class OctomapHandler:
             origin = np.array([0., 0., 0.], dtype=np.float64)
         else:
             origin = np.array(origin, dtype=np.float64)
-        self.tree.insertPointCloudWithColor(points_double, colors, origin, lazy_eval=True)
+        self.tree.insertPointCloud(points_double, colors=colors, sensor_origin=origin, lazy_eval=True)
 
 
     def get_structure(self):
-        # Extract occupied voxels and their colors
-        occupied_nodes = []
-        node_colors = []
-        for it in self.tree.begin_leafs(maxDepth=0):
-            if self.tree.isNodeOccupied(it):
-                c = it.getCoordinate()
-                color = it.getColor()
-                occupied_nodes.append([c[0], c[1], c[2]])
-                node_colors.append([color[0], color[1], color[2]])
-
-        return np.array(occupied_nodes), np.array(node_colors).astype(float) / 255.0
+        # Use extractPointCloud to get points and colors directly
+        points, _, colors = self.tree.extractPointCloud()
+        return np.array(points), np.array(colors).astype(float) / 255.0
 
     def save(self, filename):
         self.tree.updateInnerOccupancy()
@@ -128,7 +120,7 @@ if __name__ == "__main__":
     # Available models for help text
     model_options = [
         "DA3 models (provide intrinsics, require depth_anything_3): depth-anything/DA3NESTED-GIANT-LARGE, depth-anything/DA3NESTED-LARGE, depth-anything/DA3NESTED-BASE, depth-anything/DA3NESTED-SMALL",
-        "HF models: Intel/zoedepth-nyu-kitti, Intel/dpt-large, Intel/dpt-hybrid (default), LiheYoung/depth-anything-v2-small-hf, Intel/dpt-beit-large-512"
+        "HF models: Intel/zoedepth-nyu-kitti, Intel/dpt-large, Intel/dpt-hybrid-midas (default: dpt-hybrid), depth-anything/Depth-Anything-V2-Small-hf, Intel/dpt-beit-large-512"
     ]
 
     parser = argparse.ArgumentParser(

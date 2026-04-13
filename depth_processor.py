@@ -12,7 +12,7 @@ AVAILABLE_MODELS = {
     "zoe": "isl-org/ZoeDepth",
     "dpt-large": "Intel/dpt-large",
     "dpt-hybrid": "Intel/dpt-hybrid-midas",
-    "depth-anything": "LiheYoung/depth-anything-v2-small-hf",
+    "depth-anything": "depth-anything/Depth-Anything-V2-Small-hf",
     "midas-small": "Intel/dpt-beit-large-512",
 }
 

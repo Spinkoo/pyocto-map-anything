@@ -126,6 +126,8 @@ To generate your own 3D reconstructions and GIFs, use:
 python demo_pyoctomap.py --input data/images/<image_name>.jpg --visualize --gif examples/<output_name>.gif --resolution 0.005
 ```
 
+Optional depth models are passed with `--model` (see the main [README](../README.md)); for example, Depth Anything V2 in Hugging Face `transformers` format uses IDs such as `depth-anything/Depth-Anything-V2-Small-hf`.
+
 ## How to Generate New Examples
 
 1. Place your input image in `data/images/`
