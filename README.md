@@ -43,27 +43,38 @@ The pipeline supports two families of depth estimation models with seamless inte
 
 ### Depth Anything v3 (DA3) Models
 
-| Model | Accuracy | Speed | Intrinsics | Use Case |
-|-------|----------|-------|------------|----------|
-| `depth-anything/DA3NESTED-GIANT-LARGE-1.1` | Highest | Slowest | ✅ Automatic | Maximum accuracy needed |
-| `depth-anything/DA3-LARGE` | High | Medium | ✅ Automatic | Best balance (recommended) |
-| `depth-anything/DA3-BASE` | Good | Fast | ✅ Automatic | Faster inference |
-| `depth-anything/DA3-SMALL` | Moderate | Fastest | ✅ Automatic | Real-time applications |
+Requires the [`depth_anything_3`](https://github.com/ByteDance-Seed/Depth-Anything-3) package (see [Installation](#depth-anything-v3-installation)).
+
+| Model | Shortcut | Accuracy | Speed | Intrinsics | Use Case |
+|-------|----------|----------|-------|------------|----------|
+| `depth-anything/DA3NESTED-GIANT-LARGE-1.1` | `da3-giant-large` | Highest | Slowest | ✅ Automatic | **Recommended** — best overall (metric + multi-view) |
+| `depth-anything/DA3NESTED-GIANT-LARGE` | — | Highest | Slowest | ✅ Automatic | Nested giant (deprecated; prefer `-1.1`) |
+| `depth-anything/DA3-LARGE-1.1` | `da3-large` | High | Medium | ✅ Automatic | **Recommended** large model (retrained) |
+| `depth-anything/DA3-LARGE` | — | High | Medium | ✅ Automatic | Large any-view model |
+| `depth-anything/DA3-BASE` | `da3-base` | Good | Fast | ✅ Automatic | Faster inference |
+| `depth-anything/DA3-SMALL` | `da3-small` | Moderate | Fastest | ✅ Automatic | Real-time / low memory |
+
+> **Note:** Prefer models with the `-1.1` suffix — they were retrained after a bug fix and perform better, especially on street scenes. See the [official model table](https://github.com/ByteDance-Seed/Depth-Anything-3#-model-zoo).
 
 **Key Features:**
 - **Automatic camera intrinsics estimation** - No need to provide fx, fy, cx, cy
 - **High accuracy** depth predictions in meters
 - **State-of-the-art** performance on diverse scenes
+- **CUDA strongly recommended** for acceptable inference speed
 
 ### HuggingFace Models
 
-| Model | Accuracy | Speed | Intrinsics | Use Case |
-|-------|----------|-------|------------|----------|
-| `isl-org/ZoeDepth` | Excellent | Medium | ❌ FOV-based | High accuracy, general scenes |
-| `Intel/dpt-large` | Very High | Slow | ❌ FOV-based | Maximum accuracy (HF models) |
-| `Intel/dpt-hybrid-midas` (default) | Good | Medium | ❌ FOV-based | Balanced performance |
-| `depth-anything/Depth-Anything-V2-Small-hf` | Good | Fast | ❌ FOV-based | Fast general purpose |
-| `Intel/dpt-beit-large-512` | Moderate | Fastest | ❌ FOV-based | Quick processing |
+Works with `pip install -r requirements.txt` only (no DA3 package needed).
+
+| Model | Shortcut | Accuracy | Speed | Intrinsics | Use Case |
+|-------|----------|----------|-------|------------|----------|
+| `Intel/zoedepth-nyu-kitti` | `zoe` | Excellent | Medium | ❌ FOV-based | High accuracy, general scenes |
+| `Intel/dpt-large` | `dpt-large` | Very High | Slow | ❌ FOV-based | Maximum accuracy (HF models) |
+| `Intel/dpt-hybrid-midas` | `dpt-hybrid` (default) | Good | Medium | ❌ FOV-based | Balanced performance |
+| `depth-anything/Depth-Anything-V2-Small-hf` | `depth-anything` | Good | Fast | ❌ FOV-based | Fast general purpose (DA2 via transformers) |
+| `Intel/dpt-beit-large-512` | `midas-small` | Moderate | Fastest | ❌ FOV-based | Quick processing |
+
+Other ZoeDepth variants: `Intel/zoedepth-nyu`, `Intel/zoedepth-kitti`. DA2 Base/Large: `depth-anything/Depth-Anything-V2-Base-hf`, `depth-anything/Depth-Anything-V2-Large-hf`.
 
 **Key Features:**
 - **Easy installation** - Works with standard `transformers` library
@@ -136,11 +147,14 @@ python demo_pyoctomap.py --input data/images/room2.jpg --visualize --resolution 
 Depth Anything v3 models provide automatic camera intrinsics estimation:
 
 ```bash
-# Using DA3-LARGE model
-python demo_pyoctomap.py --input data/images/room1.jpg --visualize --model "depth-anything/DA3-LARGE" --resolution 0.005
+# Recommended: DA3-LARGE-1.1 (shortcut: da3-large)
+python demo_pyoctomap.py --input data/images/room1.jpg --visualize --model da3-large --resolution 0.005
 
-# Using DA3NESTED-GIANT-LARGE-1.1 for highest accuracy
-python demo_pyoctomap.py --input data/images/room2.jpg --visualize --model "depth-anything/DA3NESTED-GIANT-LARGE-1.1" --resolution 0.005
+# Best quality (slowest; shortcut: da3-giant-large)
+python demo_pyoctomap.py --input data/images/room2.jpg --visualize --model da3-giant-large --resolution 0.005
+
+# Faster inference
+python demo_pyoctomap.py --input data/images/room3.jpg --visualize --model da3-base --resolution 0.005
 ```
 
 When using DA3 models, you'll see output like:
@@ -153,8 +167,8 @@ Using DA3 estimated intrinsics: fx=381.6, fy=381.1, cx=252.0, cy=168.0
 HuggingFace models use FOV-based intrinsics (default 65°):
 
 ```bash
-# Using ZoeDepth (high accuracy)
-python demo_pyoctomap.py --input data/images/room2.jpg --visualize --model "Intel/zoedepth-nyu-kitti" --resolution 0.005
+# Using ZoeDepth (shortcut: zoe)
+python demo_pyoctomap.py --input data/images/room2.jpg --visualize --model zoe --resolution 0.005
 
 # Using default dpt-hybrid model
 python demo_pyoctomap.py --input data/images/room3.jpg --visualize --resolution 0.005
@@ -165,7 +179,7 @@ python demo_pyoctomap.py --input data/images/room3.jpg --visualize --resolution 
 Save the reconstruction to a file:
 
 ```bash
-python demo_pyoctomap.py --input data/images/room3.jpg --model "depth-anything/DA3-LARGE" --output my_reconstruction.ot
+python demo_pyoctomap.py --input data/images/room3.jpg --model da3-large --output my_reconstruction.ot
 ```
 
 ### High-Resolution Mapping
@@ -173,7 +187,7 @@ python demo_pyoctomap.py --input data/images/room3.jpg --model "depth-anything/D
 For detailed reconstructions, use smaller resolution values:
 
 ```bash
-python demo_pyoctomap.py --input data/images/white_house.jpg --visualize --model "depth-anything/DA3-LARGE" --resolution 0.005
+python demo_pyoctomap.py --input data/images/white_house.jpg --visualize --model da3-large --resolution 0.005
 ```
 
 ## Command Reference
@@ -181,9 +195,11 @@ python demo_pyoctomap.py --input data/images/white_house.jpg --visualize --model
 ### Arguments
 
 - `--input` (required): Path to input image file
-- `--model`: Depth estimation model name (default: `dpt-hybrid`)
-  - DA3 models: `depth-anything/DA3NESTED-GIANT-LARGE-1.1`, `depth-anything/DA3-LARGE`, `depth-anything/DA3-BASE`, `depth-anything/DA3-SMALL`
-  - HF models: `Intel/zoedepth-nyu-kitti`, `Intel/dpt-large`, `Intel/dpt-hybrid-midas` (shortcut: `dpt-hybrid`), `depth-anything/Depth-Anything-V2-Small-hf`, `Intel/dpt-beit-large-512`
+- `--model`: Depth estimation model (default: `dpt-hybrid`)
+  - **DA3 shortcuts** (require `depth_anything_3`): `da3-giant-large`, `da3-large`, `da3-base`, `da3-small`
+  - **DA3 full names**: `depth-anything/DA3NESTED-GIANT-LARGE-1.1`, `depth-anything/DA3-LARGE-1.1`, `depth-anything/DA3-LARGE`, `depth-anything/DA3-BASE`, `depth-anything/DA3-SMALL`
+  - **HF shortcuts**: `dpt-hybrid`, `dpt-large`, `zoe`, `depth-anything`, `midas-small`
+  - **HF full names**: `Intel/zoedepth-nyu-kitti`, `Intel/dpt-large`, `Intel/dpt-hybrid-midas`, `depth-anything/Depth-Anything-V2-Small-hf`, `Intel/dpt-beit-large-512`
 - `--resolution`: OctoMap voxel resolution in meters (default: `0.05`)
   - Smaller values = higher detail but more memory
   - Recommended: `0.005` for detailed scenes, `0.05` for general use

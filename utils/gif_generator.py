@@ -1,17 +1,142 @@
 """
 Generate rotating GIF animations from 3D OctoMap reconstructions
 """
+import math
 import open3d as o3d
 import numpy as np
 from PIL import Image
 import os
 import tempfile
 import shutil
-import time
 
 
-def create_rotating_gif(points, colors, output_path, resolution=0.05, num_frames=60, 
-                        rotation_axis='y', fps=10, width=1024, height=768, zoom=0.98):
+def _aabb_corners(points):
+    """Return the 8 corners of the axis-aligned bounding box."""
+    mins = points.min(axis=0)
+    maxs = points.max(axis=0)
+    return np.array([
+        [mins[0], mins[1], mins[2]],
+        [mins[0], mins[1], maxs[2]],
+        [mins[0], maxs[1], mins[2]],
+        [mins[0], maxs[1], maxs[2]],
+        [maxs[0], mins[1], mins[2]],
+        [maxs[0], mins[1], maxs[2]],
+        [maxs[0], maxs[1], mins[2]],
+        [maxs[0], maxs[1], maxs[2]],
+    ])
+
+
+def _rotation_matrix(angle, rotation_axis='y'):
+    """Rotation matrix for spinning geometry around the scene center."""
+    c, s = np.cos(angle), np.sin(angle)
+    if rotation_axis == 'y':
+        return np.array([[c, 0.0, s], [0.0, 1.0, 0.0], [-s, 0.0, c]])
+    if rotation_axis == 'x':
+        return np.array([[1.0, 0.0, 0.0], [0.0, c, -s], [0.0, s, c]])
+    return np.array([[c, 0.0, s], [0.0, 1.0, 0.0], [-s, 0.0, c]])
+
+
+def _rotate_points(points, center, angle, rotation_axis='y'):
+    """Rotate points around center by angle (radians)."""
+    R = _rotation_matrix(angle, rotation_axis)
+    return (points - center) @ R.T + center
+
+
+# Fixed camera: looks at the scene from +Z toward the origin (Open3D uses -front)
+CAMERA_FRONT = np.array([0.0, 0.0, 1.0])
+
+
+def _camera_axes(front, up):
+    """Build an orthonormal camera basis (right, image-up) from view direction."""
+    front = front / np.linalg.norm(front)
+    up = np.asarray(up, dtype=float)
+    up = up / np.linalg.norm(up)
+    right = np.cross(up, front)
+    right_norm = np.linalg.norm(right)
+    if right_norm < 1e-8:
+        up = np.array([0.0, 0.0, 1.0])
+        right = np.cross(up, front)
+        right_norm = np.linalg.norm(right)
+    right /= right_norm
+    img_up = np.cross(front, right)
+    img_up /= np.linalg.norm(img_up)
+    return right, img_up
+
+
+def _projected_extents(corners, center, front, up):
+    """Half-width and half-height of the AABB projected onto the view plane."""
+    right, img_up = _camera_axes(front, up)
+    offsets = corners - center
+    max_x = float(np.max(np.abs(offsets @ right)))
+    max_y = float(np.max(np.abs(offsets @ img_up)))
+    return max_x, max_y
+
+
+def _max_projected_radius(corners, center, num_frames, rotation_axis, up, aspect,
+                          camera_front=CAMERA_FRONT):
+    """Largest half-span on screen as geometry rotates in front of a fixed camera."""
+    max_radius = 0.0
+    for i in range(num_frames):
+        angle = 2 * np.pi * i / num_frames
+        rotated = _rotate_points(corners, center, angle, rotation_axis)
+        extent_x, extent_y = _projected_extents(rotated, center, camera_front, up)
+        max_radius = max(max_radius, extent_x / aspect, extent_y)
+    return max_radius
+
+
+def _fit_camera_to_scene(ctr, vis, corners, center, num_frames, rotation_axis,
+                         up, width, height, padding=1.05, zoom=None,
+                         camera_front=CAMERA_FRONT):
+    """
+    Lock the camera and frame the scene tightly by fitting vertical FOV to the
+    worst-case projection as geometry rotates. Falls back to fixed zoom when set.
+    """
+    aspect = width / height
+    up = np.asarray(up, dtype=float)
+    camera_front = np.asarray(camera_front, dtype=float)
+
+    ctr.set_lookat(center)
+    ctr.set_front(camera_front)
+    ctr.set_up(up)
+    for _ in range(15):
+        vis.poll_events()
+        vis.update_renderer()
+
+    vis.reset_view_point(True)
+    for _ in range(15):
+        vis.poll_events()
+        vis.update_renderer()
+
+    if zoom is not None:
+        ctr.set_zoom(zoom)
+    else:
+        max_radius = _max_projected_radius(
+            corners, center, num_frames, rotation_axis, up, aspect, camera_front
+        )
+        extent_x, extent_y = _projected_extents(corners, center, camera_front, up)
+        visible_radius = max(extent_x / aspect, extent_y)
+
+        if max_radius >= 1e-9 and visible_radius >= 1e-9:
+            fov_deg = ctr.get_field_of_view()
+            half_tan = math.tan(math.radians(fov_deg) / 2.0)
+            target_half_tan = half_tan * max_radius * padding / visible_radius
+            target_fov_deg = math.degrees(2.0 * math.atan(target_half_tan))
+            ctr.change_field_of_view(target_fov_deg - fov_deg)
+        else:
+            ctr.set_zoom(0.7)
+
+    # reset_view_point moves the camera; lock it back before animating geometry
+    ctr.set_lookat(center)
+    ctr.set_front(camera_front)
+    ctr.set_up(up)
+    for _ in range(10):
+        vis.poll_events()
+        vis.update_renderer()
+
+
+def create_rotating_gif(points, colors, output_path, resolution=0.05, num_frames=60,
+                        rotation_axis='y', fps=10, width=1024, height=768,
+                        zoom=None, padding=1.05):
     """
     Create a rotating GIF animation of a 3D scene.
     
@@ -25,11 +150,15 @@ def create_rotating_gif(points, colors, output_path, resolution=0.05, num_frames
         fps: Frames per second for the GIF
         width: Image width in pixels
         height: Image height in pixels
-        zoom: Camera zoom level (default: 0.98, higher = more zoomed in, max ~1.0)
+        zoom: Fixed camera zoom (None = auto-fit from projected bounds)
+        padding: Margin around the scene when auto-fitting (1.05 = 5% border)
     """
     if len(points) == 0:
         print("No points to visualize")
         return
+
+    orig_points = np.asarray(points, dtype=float)
+    orig_colors = np.asarray(colors, dtype=float)
     
     # Create temporary directory for frames
     temp_dir = tempfile.mkdtemp()
@@ -44,6 +173,7 @@ def create_rotating_gif(points, colors, output_path, resolution=0.05, num_frames
         # For very fine resolutions (< 0.005), use point cloud directly
         # For coarser resolutions, create a voxel grid for better visualization
         use_point_cloud = resolution < 0.005
+        display_resolution = None
         
         if use_point_cloud:
             print(f"Using point cloud directly (resolution {resolution:.6f} is very fine)")
@@ -71,10 +201,12 @@ def create_rotating_gif(points, colors, output_path, resolution=0.05, num_frames
                 use_point_cloud = True
                 voxel_grid = None
         
-        # Calculate center and bounds of the scene
-        center = points.mean(axis=0)
-        bounds = points.max(axis=0) - points.min(axis=0)
-        max_dim = np.max(bounds)
+        # Use AABB center so framing matches the projected bounds
+        mins = points.min(axis=0)
+        maxs = points.max(axis=0)
+        center = (mins + maxs) / 2.0
+        corners = _aabb_corners(points)
+        up = np.array([0.0, 1.0, 0.0])
         
         # Create visualizer - use invisible window to avoid blocking main window
         vis = o3d.visualization.Visualizer()
@@ -88,53 +220,40 @@ def create_rotating_gif(points, colors, output_path, resolution=0.05, num_frames
         
         # Get view control
         ctr = vis.get_view_control()
+        if ctr is None:
+            vis.destroy_window()
+            raise RuntimeError(
+                "Open3D failed to initialize the render window (get_view_control returned None). "
+                "On WSL, try: export XDG_SESSION_TYPE=x11"
+            )
+
+        _fit_camera_to_scene(
+            ctr, vis, corners, center, num_frames, rotation_axis,
+            up, width, height, padding=padding, zoom=zoom,
+        )
+
+        def _update_geometry(angle):
+            nonlocal voxel_grid
+            rotated_points = _rotate_points(orig_points, center, angle, rotation_axis)
+            if use_point_cloud:
+                pcd.points = o3d.utility.Vector3dVector(rotated_points)
+                pcd.colors = o3d.utility.Vector3dVector(orig_colors)
+                vis.update_geometry(pcd)
+            else:
+                vis.remove_geometry(voxel_grid, reset_bounding_box=False)
+                rotated_pcd = o3d.geometry.PointCloud()
+                rotated_pcd.points = o3d.utility.Vector3dVector(rotated_points)
+                rotated_pcd.colors = o3d.utility.Vector3dVector(orig_colors)
+                voxel_grid = o3d.geometry.VoxelGrid.create_from_point_cloud(
+                    rotated_pcd, voxel_size=display_resolution
+                )
+                vis.add_geometry(voxel_grid, reset_bounding_box=False)
         
-        # Set initial camera position
-        ctr.set_lookat(center)
-        ctr.set_up([0, 1, 0])
-        ctr.set_front([0, 0, -1])
-        
-        # Set zoom to reduce white space (higher value = more zoomed in)
-        # Using high zoom (0.98) to minimize white space around the scene
-        ctr.set_zoom(zoom)
-        
-        # Force initial render with multiple passes
-        # Don't use sleep here as it blocks - just render multiple times
-        for _ in range(30):
-            vis.poll_events()
-            vis.update_renderer()
-        
-        # Generate frames
+        # Generate frames — fixed camera, rotating geometry
         print(f"Generating {num_frames} frames for rotation...")
         for i in range(num_frames):
-            # Calculate rotation angle (full 360 degrees)
             angle = 2 * np.pi * i / num_frames
-            
-            if rotation_axis == 'y':
-                # Rotate around Y axis (horizontal rotation)
-                front_x = np.sin(angle)
-                front_z = np.cos(angle)
-                front = np.array([front_x, 0, front_z])
-            elif rotation_axis == 'x':
-                # Rotate around X axis (vertical rotation)
-                front_y = np.sin(angle)
-                front_z = np.cos(angle)
-                front = np.array([0, front_y, front_z])
-            else:
-                # Default to Y axis
-                front_x = np.sin(angle)
-                front_z = np.cos(angle)
-                front = np.array([front_x, 0, front_z])
-            
-            # Normalize front vector
-            front = front / np.linalg.norm(front)
-            
-            # Set camera view
-            ctr.set_front(front)
-            ctr.set_lookat(center)
-            ctr.set_up([0, 1, 0])
-            # Maintain zoom level to reduce white space
-            ctr.set_zoom(zoom)
+            _update_geometry(angle)
             
             # Update renderer multiple times to ensure proper rendering
             # More passes for invisible window to ensure proper rendering
@@ -221,7 +340,7 @@ def generate_gif_from_octomap(octomap_handler, output_path, resolution=0.05, **k
         output_path: Path to save the GIF file (will add .gif if missing)
         resolution: Voxel resolution for display
         **kwargs: Additional arguments passed to create_rotating_gif
-                  (num_frames, rotation_axis, fps, width, height)
+                  (num_frames, rotation_axis, fps, width, height, zoom, padding)
     
     Returns:
         True if GIF was generated successfully, False otherwise

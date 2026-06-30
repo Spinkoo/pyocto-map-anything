@@ -119,8 +119,10 @@ def run_pipeline(args):
 if __name__ == "__main__":
     # Available models for help text
     model_options = [
-        "DA3 models (provide intrinsics, require depth_anything_3): depth-anything/DA3NESTED-GIANT-LARGE, depth-anything/DA3NESTED-LARGE, depth-anything/DA3NESTED-BASE, depth-anything/DA3NESTED-SMALL",
-        "HF models: Intel/zoedepth-nyu-kitti, Intel/dpt-large, Intel/dpt-hybrid-midas (default: dpt-hybrid), depth-anything/Depth-Anything-V2-Small-hf, Intel/dpt-beit-large-512"
+        "DA3 shortcuts (require depth_anything_3): da3-giant-large, da3-large, da3-base, da3-small",
+        "DA3 full names: depth-anything/DA3NESTED-GIANT-LARGE-1.1, depth-anything/DA3-LARGE-1.1, depth-anything/DA3-LARGE, depth-anything/DA3-BASE, depth-anything/DA3-SMALL",
+        "HF shortcuts: dpt-hybrid (default), dpt-large, zoe, depth-anything, midas-small",
+        "HF full names: Intel/zoedepth-nyu-kitti, Intel/dpt-large, Intel/dpt-hybrid-midas, depth-anything/Depth-Anything-V2-Small-hf, Intel/dpt-beit-large-512",
     ]
 
     parser = argparse.ArgumentParser(

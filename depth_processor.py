@@ -4,12 +4,12 @@ from model_handler import DepthModel
 # Available depth estimation models
 AVAILABLE_MODELS = {
     # Depth Anything v3 models (require depth_anything_3 package)
-    "da3-giant-large": "depth-anything/DA3NESTED-GIANT-LARGE",
-    "da3-large": "depth-anything/DA3NESTED-LARGE",
-    "da3-base": "depth-anything/DA3NESTED-BASE",
-    "da3-small": "depth-anything/DA3NESTED-SMALL",
+    "da3-giant-large": "depth-anything/DA3NESTED-GIANT-LARGE-1.1",
+    "da3-large": "depth-anything/DA3-LARGE-1.1",
+    "da3-base": "depth-anything/DA3-BASE",
+    "da3-small": "depth-anything/DA3-SMALL",
     # HuggingFace transformers models
-    "zoe": "isl-org/ZoeDepth",
+    "zoe": "Intel/zoedepth-nyu-kitti",
     "dpt-large": "Intel/dpt-large",
     "dpt-hybrid": "Intel/dpt-hybrid-midas",
     "depth-anything": "depth-anything/Depth-Anything-V2-Small-hf",
